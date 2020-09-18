@@ -1555,7 +1555,7 @@ function lookup(docker_bin, image, bin) {
                 // bash is available on all platform
                 'bash',
                 '-c',
-                `'command -v ${bin}'`
+                `command -v ${bin}`
             ]);
             return (ret === null || ret === void 0 ? void 0 : ret.stdout_data) ? ret.stdout_data : '';
         }
