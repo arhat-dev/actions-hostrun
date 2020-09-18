@@ -45,7 +45,9 @@ jobs:
         HOST_OS_RELEASE: ${{ steps.hostrun.outputs.stdout }}
       run: |
         printf '%s' "${HOST_OS_RELEASE}" > ubuntu.os-release
-        if [ "$(diff -q ubuntu.os-release /etc/os-release)" != "" ] ; then
+        diff ubuntu.os-release /etc/os-release
+
+        if [ "$(diff -q ubuntu.os-release /etc/os-release)" == "" ] ; then
           echo "Failed to get host os-release"
           exit 1
         fi
