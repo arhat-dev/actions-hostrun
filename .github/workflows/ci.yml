@@ -31,13 +31,13 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - run: |
-        apk add tree
-        tree /__e
+        apk add docker-cli
 
     - name: Show host rootfs release info
       id: hostrun
       uses: ./
       with:
+        shell: bash
         run: cat /etc/os-release
 
     - name: Compare release info in container

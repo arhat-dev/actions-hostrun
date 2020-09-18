@@ -97,7 +97,7 @@ function main() {
     return __awaiter(this, void 0, void 0, function* () {
         core.info(`Running on ${os.platform()}/${os.arch()} release: ${os.release()}`);
         core.info(`Running as ${process.argv.join(' ')}`);
-        const ret = yield run_1.run(core.getInput('shell'), core.getInput('run', { required: true }), core.getInput('working-directory'));
+        const ret = yield run_1.run(core.getInput('shell'), core.getInput('run', { required: true }));
         if (ret === undefined) {
             return;
         }
@@ -1473,53 +1473,42 @@ exports.run = void 0;
 const core = __importStar(__webpack_require__(186));
 const exec_1 = __webpack_require__(514);
 const io = __importStar(__webpack_require__(436));
-const os = __importStar(__webpack_require__(87));
 const fs = __importStar(__webpack_require__(747));
+const os = __importStar(__webpack_require__(87));
 const path = __importStar(__webpack_require__(622));
-function run(input_shell, input_run, input_wd) {
+const default_container_tmp_dir = '/__w/_temp';
+const default_host_tmp_dir = '/home/runner/work/_temp';
+const default_os_tmp_dir = os.tmpdir();
+function run(input_shell, input_run) {
     return __awaiter(this, void 0, void 0, function* () {
         let dir = '';
         try {
-            // write input_run to a temporary file
-            const sys_tmp_dir = fs.realpathSync(os.tmpdir());
-            dir = fs.mkdtempSync(path.join(sys_tmp_dir, 'actions-hostrun'));
-            yield io.mkdirP(dir);
-            const script = path.join(dir, 'script');
-            fs.writeFileSync(script, input_run, 'utf8');
-            core.debug(`Using script ${script}`);
-            // get shell used
-            if (input_shell === '') {
-                input_shell = 'bash';
+            let actual_tmp_dir = '';
+            let actual_host_tmp_dir = default_host_tmp_dir;
+            if (fs.existsSync(default_container_tmp_dir)) {
+                actual_tmp_dir = default_container_tmp_dir;
             }
-            const shell = yield io.which(input_shell, true);
-            core.debug(`Using shell ${shell}`);
-            // get working dir
-            let wd = undefined;
-            if (input_wd === '') {
-                wd = undefined;
+            else if (fs.existsSync(default_host_tmp_dir)) {
+                actual_tmp_dir = default_host_tmp_dir;
             }
             else {
-                wd = fs.realpathSync(input_wd);
+                actual_tmp_dir = default_os_tmp_dir;
+                actual_host_tmp_dir = default_os_tmp_dir;
             }
-            core.debug(`Using working-directory ${wd}`);
-            let stdout_data = '';
-            let stderr_data = '';
-            core.info(`Executing: ${shell} ${script} ...\n`);
-            yield exec_1.exec(shell, [script], {
-                cwd: wd,
-                listeners: {
-                    stdout: (data) => {
-                        stdout_data += data.toString();
-                    },
-                    stderr: (data) => {
-                        stderr_data += data.toString();
-                    }
-                }
-            });
-            return {
-                stdout_data,
-                stderr_data
-            };
+            dir = fs.mkdtempSync(path.join(actual_tmp_dir, 'actions-hostrun'));
+            yield io.mkdirP(dir);
+            const script_in_container = path.join(dir, 'script');
+            fs.writeFileSync(script_in_container, input_run, 'utf8');
+            const script_in_host = path.join(actual_host_tmp_dir, path.basename(dir), 'script');
+            core.debug(`Using script ${script_in_host}`);
+            const docker_bin = yield io.which('docker');
+            let nsenter1_img = core.getInput('nsenter1-image');
+            if (nsenter1_img === '') {
+                nsenter1_img = 'docker.io/justincormack/nsenter1:latest';
+            }
+            return yield run_in_host(docker_bin, nsenter1_img, input_shell, [
+                script_in_host
+            ]);
         }
         catch (error) {
             core.setFailed(error.message);
@@ -1531,6 +1520,63 @@ function run(input_shell, input_run, input_wd) {
     });
 }
 exports.run = run;
+function run_in_host(docker_bin, image, bin, args) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let stdout_data = '';
+        let stderr_data = '';
+        if (!path.isAbsolute(bin)) {
+            bin = yield lookup(docker_bin, image, bin);
+            bin = bin.trimEnd();
+        }
+        if (bin === '') {
+            throw new Error('Unable to find binary path');
+        }
+        yield exec_1.exec(docker_bin, ['run', '-t', '--rm', '--privileged', '--pid=host', image, bin, ...args], {
+            listeners: {
+                stdout: (data) => {
+                    stdout_data += data.toString();
+                },
+                stderr: (data) => {
+                    stderr_data += data.toString();
+                }
+            }
+        });
+        return {
+            stdout_data,
+            stderr_data
+        };
+    });
+}
+// lookup path of bin in host
+function lookup(docker_bin, image, bin) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const ret = yield run_in_host(docker_bin, image, '/usr/bin/env', [
+                // bash is available on all platform
+                'bash',
+                '-c',
+                `'command -v ${bin}'`
+            ]);
+            return (ret === null || ret === void 0 ? void 0 : ret.stdout_data) ? ret.stdout_data : '';
+        }
+        catch (err) {
+            core.debug(err.message);
+            try {
+                const ret = yield run_in_host(docker_bin, image, '/usr/bin/env', [
+                    // fallback to sh for docker on macos
+                    'sh',
+                    '-c',
+                    `command -v ${bin}`
+                ]);
+                return (ret === null || ret === void 0 ? void 0 : ret.stdout_data) ? ret.stdout_data : '';
+            }
+            catch (err2) {
+                core.debug(err2.message);
+                return '';
+            }
+        }
+    });
+}
 
 
 /***/ }),

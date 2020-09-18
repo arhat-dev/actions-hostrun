@@ -8,8 +8,7 @@ async function main(): Promise<void> {
 
   const ret = await run(
     core.getInput('shell'),
-    core.getInput('run', {required: true}),
-    core.getInput('working-directory')
+    core.getInput('run', {required: true})
   )
 
   if (ret === undefined) {

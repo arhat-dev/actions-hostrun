@@ -5,15 +5,20 @@ inputs:
   shell:
     required: false
     description: Same as job.<job-id>.steps.shell
-    default: bash
+    default: sh
   run:
     required: true
     description: Same as job.<job-id>.steps.run
     default: ""
-  working-directory:
+  nsenter1-image:
     required: false
-    description: Same as job.<job-id>.steps.working-directory
-    default: ""
+    description: Docker image of https://github.com/justincormack/nsenter1
+    default: justincormack/nsenter1
+outputs:
+  stdout:
+    description: stdout output of command execution
+  stderr:
+    description: stderr output of command execution
 runs:
   using: node12
   main: dist/index.js
