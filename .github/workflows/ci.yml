@@ -45,6 +45,7 @@ jobs:
       env:
         HOST_OS_RELEASE: ${{ steps.hostrun.outputs.stdout }}
       run: |
+        set -e
         printf '%s' "${HOST_OS_RELEASE}" > ubuntu.os-release
         diff ubuntu.os-release /etc/os-release
 
