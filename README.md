@@ -4,6 +4,8 @@
 
 Run host commands when there is container defined in job
 
+__NOTE:__ This image only works for linux environment
+
 ## Usage
 
 Before you start, please make sure you have installed docker-cli package in your container before using this action, this actions relies on the [`nsenter1`](https://github.com/justincormack/nsenter1) image
