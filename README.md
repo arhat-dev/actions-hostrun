@@ -17,7 +17,7 @@ jobs:
       run: cat /etc/os-release
 
     - name: Show host rootfs release info
-      uses: arhat-dev/actions-hostrun@master
+      uses: arhat-dev/actions-hostrun@main
       with:
         # optional shell name, default: bash
         shell: bash
