@@ -24,14 +24,3 @@ test('invalid run', async () => {
     console.log(error)
   }
 })
-
-// shows how the runner will run a javascript action with env / stdout protocol
-test('test runs', () => {
-  process.env['INPUT_RUN'] = 'printf test'
-  const ip = path.join(__dirname, '..', 'lib', 'main.js')
-  const options: cp.ExecSyncOptions = {
-    env: process.env
-  }
-
-  console.log(cp.execSync(`node ${ip}`, options).toString())
-})
