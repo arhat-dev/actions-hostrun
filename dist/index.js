@@ -92,8 +92,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(186));
 const run_1 = __webpack_require__(884);
+const os = __importStar(__webpack_require__(87));
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
+        core.info(`Running on ${os.platform()}/${os.arch()} release: ${os.release()}`);
+        core.info(`Running as ${process.argv.join(' ')}`);
         const ret = yield run_1.run(core.getInput('shell'), core.getInput('run', { required: true }), core.getInput('working-directory'));
         if (ret === undefined) {
             return;
@@ -1488,7 +1491,7 @@ function run(input_shell, input_run, input_wd) {
             if (input_shell === '') {
                 input_shell = 'bash';
             }
-            const shell = yield io.which(input_shell);
+            const shell = yield io.which(input_shell, true);
             core.debug(`Using shell ${shell}`);
             // get working dir
             let wd = undefined;
