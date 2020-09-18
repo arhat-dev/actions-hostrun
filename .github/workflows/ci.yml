@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  check_run:
+    types:
+    - rerequested
+    - requested_action
+  pull_request:
+    branches:
+    - master
+  push:
+    branches:
+    - master
+    tags:
+    - v*
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - run: |
+        npm install
+    - run: |
+        npm run all
+
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: alpine:latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Show host rootfs release info
+      id: hostrun
+      uses: ./
+      with:
+        run: cat /etc/os-release
+
+    - name: Compare release info in container
+      env:
+        HOST_OS_RELEASE: ${{ steps.hostrun.outputs.stdout }}
+      run: |
+        printf '%s' "${HOST_OS_RELEASE}" > ubuntu.os-release
+        if [ "$(diff -q ubuntu.os-release /etc/os-release)" != "" ] ; then
+          echo "Failed to get host os-release"
+          exit 1
+        fi

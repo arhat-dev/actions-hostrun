@@ -1,11 +1,19 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: Actions HostRun
+description: Run host commands when there is container defined in job
+author: ArhatDev
 inputs:
-  milliseconds: # change this
+  shell:
+    required: false
+    description: Same as job.<job-id>.steps.shell
+    default: bash
+  run:
     required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+    description: Same as job.<job-id>.steps.run
+    default: ""
+  working-directory:
+    required: false
+    description: Same as job.<job-id>.steps.working-directory
+    default: ""
 runs:
-  using: 'node12'
-  main: 'dist/index.js'
+  using: node12
+  main: dist/index.js
