@@ -4,7 +4,7 @@
 
 Run host commands when there is container defined in job
 
-__NOTE:__ This image only works for linux environment
+__NOTE:__ This action only works for linux environment
 
 ## Usage
 
