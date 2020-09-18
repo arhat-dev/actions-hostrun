@@ -109,7 +109,7 @@ async function lookup(
       // bash is available on all platform
       'bash',
       '-c',
-      `'command -v ${bin}'`
+      `command -v ${bin}`
     ])
     return ret?.stdout_data ? ret.stdout_data : ''
   } catch (err) {
