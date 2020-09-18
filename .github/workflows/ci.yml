@@ -30,6 +30,10 @@ jobs:
       image: alpine:latest
     steps:
     - uses: actions/checkout@v2
+    - run: |
+        apk add tree
+        tree /__e
+
     - name: Show host rootfs release info
       id: hostrun
       uses: ./
