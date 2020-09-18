@@ -11,6 +11,19 @@ test(
   100 * 1000
 )
 
+test(
+  'bash',
+  async () => {
+    const ret = await run('bash', `cat <<EOF
+test
+
+EOF`)
+    const r = ret as Result
+    expect(r.stdout_data.trimEnd()).toEqual('test')
+  },
+  100 * 1000
+)
+
 test('invalid shell', async () => {
   const ret = await run('foo', 'printf test')
   expect(ret).toEqual(undefined)
