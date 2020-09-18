@@ -59,6 +59,7 @@ export async function run(
   }
 }
 
+// run_in_host will run command in host, will make sure bin is absolute path
 async function run_in_host(
   docker_bin: string,
   image: string,
@@ -114,19 +115,6 @@ async function lookup(
     return ret?.stdout_data ? ret.stdout_data : ''
   } catch (err) {
     core.debug(err.message)
-
-    try {
-      const ret = await run_in_host(docker_bin, image, '/usr/bin/env', [
-        // fallback to sh for docker on macos
-        'sh',
-        '-c',
-        `command -v ${bin}`
-      ])
-      return ret?.stdout_data ? ret.stdout_data : ''
-    } catch (err2) {
-      core.debug(err2.message)
-
-      return ''
-    }
+    return ''
   }
 }

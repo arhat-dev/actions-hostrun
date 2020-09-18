@@ -14,10 +14,13 @@ test(
 test(
   'bash',
   async () => {
-    const ret = await run('bash', `cat <<EOF
+    const ret = await run(
+      'bash',
+      `cat <<EOF
 test
 
-EOF`)
+EOF`
+    )
     const r = ret as Result
     expect(r.stdout_data.trimEnd()).toEqual('test')
   },

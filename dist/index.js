@@ -1520,6 +1520,7 @@ function run(input_shell, input_run) {
     });
 }
 exports.run = run;
+// run_in_host will run command in host, will make sure bin is absolute path
 function run_in_host(docker_bin, image, bin, args) {
     return __awaiter(this, void 0, void 0, function* () {
         let stdout_data = '';
@@ -1561,19 +1562,7 @@ function lookup(docker_bin, image, bin) {
         }
         catch (err) {
             core.debug(err.message);
-            try {
-                const ret = yield run_in_host(docker_bin, image, '/usr/bin/env', [
-                    // fallback to sh for docker on macos
-                    'sh',
-                    '-c',
-                    `command -v ${bin}`
-                ]);
-                return (ret === null || ret === void 0 ? void 0 : ret.stdout_data) ? ret.stdout_data : '';
-            }
-            catch (err2) {
-                core.debug(err2.message);
-                return '';
-            }
+            return '';
         }
     });
 }
