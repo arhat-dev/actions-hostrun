@@ -15,5 +15,9 @@ inputs:
     description: Same as job.<job-id>.steps.working-directory
     default: ""
 runs:
-  using: node12
-  main: dist/index.js
+  using: composite
+  steps: 
+  - shell: bash
+    run: node $/dist/index.js
+  # using: node12
+  # main: dist/index.js
