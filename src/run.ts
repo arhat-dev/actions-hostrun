@@ -27,7 +27,8 @@ export async function run(
     if (input_shell === '') {
       input_shell = 'bash'
     }
-    const shell = await io.which(input_shell)
+
+    const shell = await io.which(input_shell, true)
     core.debug(`Using shell ${shell}`)
 
     // get working dir
