@@ -27,12 +27,12 @@ jobs:
     - name: Show host rootfs release info
       uses: arhat-dev/actions-hostrun@main
       with:
-        # optional shell name, default: bash
+        # (optional) shell name, default: bash
         shell: bash
         # required script to run
         run: cat /etc/os-release
-        # working-directory used when executing command
-        working-directory: /somedir
+        # (optional) docker image for nsenter1
+        nsenter1-image: justincormack/nsenter1
 ```
 
 ## LICENSE
